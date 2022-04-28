@@ -136,15 +136,9 @@ fn query_list(deps: Deps) -> StdResult<ListChannelsResponse> {
 }
 
 // make public for ibc tests
-// make public for ibc tests
 pub fn query_channel(deps: Deps, id: String) -> StdResult<ChannelResponse> {
     let info = CHANNEL_INFO.load(deps.storage, &id)?;
     // this returns Vec<(outstanding, total)>
-    let state = CHANNEL_STATE
-        .prefix(&id)
-        .range(deps.storage, None, None, Order::Ascending)
-        .collect::<StdResult<Vec<_>>>()?;
-    // we want (Vec<outstanding>, Vec<total>)
     Ok(ChannelResponse {
         info,
    })
