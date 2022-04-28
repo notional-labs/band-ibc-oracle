@@ -14,26 +14,14 @@ pub enum ContractError {
     #[error("{0}")]
     Std(#[from] StdError),
 
-    #[error("{0}")]
-    Payment(#[from] PaymentError),
-
     #[error("Channel doesn't exist: {id}")]
     NoSuchChannel { id: String },
 
-    #[error("Didn't send any funds")]
-    NoFunds {},
-
-    #[error("Amount larger than 2**64, not supported by ics20 packets")]
-    AmountOverflow {},
-
-    #[error("Only supports channel with ibc version ics20-1, got {version}")]
+    #[error("Only supports channel with ibc version bandchan-1, got {version}")]
     InvalidIbcVersion { version: String },
 
     #[error("Only supports unordered channel")]
     OnlyOrderedChannel {},
-
-    #[error("Insufficient funds to redeem voucher on channel")]
-    InsufficientFunds {},
 
     #[error("Only accepts tokens that originate on this chain, not native tokens of remote chain")]
     NoForeignTokens {},
@@ -54,11 +42,5 @@ pub enum ContractError {
 impl From<FromUtf8Error> for ContractError {
     fn from(_: FromUtf8Error) -> Self {
         ContractError::Std(StdError::invalid_utf8("parsing denom key"))
-    }
-}
-
-impl From<TryFromIntError> for ContractError {
-    fn from(_: TryFromIntError) -> Self {
-        ContractError::AmountOverflow {}
     }
 }

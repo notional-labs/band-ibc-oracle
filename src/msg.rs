@@ -1,12 +1,10 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use crate::amount::Amount;
 use crate::state::ChannelInfo;
 
 #[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 pub struct InitMsg {
-    /// Default timeout for ics20 packets, specified in seconds
     pub default_timeout: u64,
 }
 
@@ -62,11 +60,6 @@ pub struct ListChannelsResponse {
 pub struct ChannelResponse {
     /// Information on the channel's connection
     pub info: ChannelInfo,
-    /// How many tokens we currently have pending over this channel
-    pub balances: Vec<Amount>,
-    /// The total number of tokens that have been sent over this channel
-    /// (even if many have been returned, so balance is low)
-    pub total_sent: Vec<Amount>,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]

@@ -1,4 +1,3 @@
-pub mod amount;
 pub mod contract;
 mod error;
 pub mod ibc;

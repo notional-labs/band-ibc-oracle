@@ -7,7 +7,6 @@ use cosmwasm_std::{
 
 use cw2::{get_contract_version, set_contract_version};
 
-use crate::amount::Amount;
 use crate::error::ContractError;
 use crate::ibc::{OracleRequestPacket};
 use crate::msg::{
@@ -70,7 +69,7 @@ pub fn execute_oracle(
     let timeout = env.block.time.plus_seconds(timeout_delta);
     let calldata = hex::decode(msg.call_data).expect("Decoding failed");
 
-    // build ics20 packet
+    // build band packet
     let packet = OracleRequestPacket :: new (
         msg.client_id,
         msg.oracle_script_id,
@@ -144,20 +143,9 @@ pub fn query_channel(deps: Deps, id: String) -> StdResult<ChannelResponse> {
     let state = CHANNEL_STATE
         .prefix(&id)
         .range(deps.storage, None, None, Order::Ascending)
-        .map(|r| {
-            r.map(|(denom, v)| {
-                let outstanding = Amount::from_parts(denom.clone(), v.outstanding);
-                let total = Amount::from_parts(denom, v.total_sent);
-                (outstanding, total)
-            })
-        })
         .collect::<StdResult<Vec<_>>>()?;
     // we want (Vec<outstanding>, Vec<total>)
-    let (balances, total_sent) = state.into_iter().unzip();
-
     Ok(ChannelResponse {
         info,
-        balances,
-        total_sent,
-    })
+   })
 }

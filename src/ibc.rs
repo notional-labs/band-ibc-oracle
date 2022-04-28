@@ -11,8 +11,8 @@ use cosmwasm_std::{
 use crate::error::{ContractError, Never};
 use crate::state::{ChannelInfo, CHANNEL_INFO};
 
-pub const ICS20_VERSION: &str = "bandchain-1";
-pub const ICS20_ORDERING: IbcOrder = IbcOrder::Unordered;
+pub const IBC_VERSION: &str = "bandchain-1";
+pub const IBC_ORDERING: IbcOrder = IbcOrder::Unordered;
 
 
 
@@ -92,36 +92,6 @@ impl OracleResponsePacket {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug, Default)]
-pub struct Ics20Packet {
-    /// amount of tokens to transfer is encoded as a string, but limited to u64 max
-    pub amount: Uint128,
-    /// the token denomination to be transferred
-    pub denom: String,
-    /// the recipient address on the destination chain
-    pub receiver: String,
-    /// the sender address
-    pub sender: String,
-}
-
-impl Ics20Packet {
-    pub fn new<T: Into<String>>(amount: Uint128, denom: T, sender: &str, receiver: &str) -> Self {
-        Ics20Packet {
-            denom: denom.into(),
-            amount,
-            sender: sender.to_string(),
-            receiver: receiver.to_string(),
-        }
-    }
-
-    pub fn validate(&self) -> Result<(), ContractError> {
-        if self.amount.u128() > (u64::MAX as u128) {
-            Err(ContractError::AmountOverflow {})
-        } else {
-            Ok(())
-        }
-    }
-}
 
 /// This is a generic ICS acknowledgement format.
 /// Proto defined here: https://github.com/cosmos/cosmos-sdk/blob/v0.42.0/proto/ibc/core/channel/v1/channel.proto#L141-L147
@@ -198,19 +168,19 @@ fn enforce_order_and_version(
     channel: &IbcChannel,
     counterparty_version: Option<&str>,
 ) -> Result<(), ContractError> {
-    if channel.version != ICS20_VERSION {
+    if channel.version != IBC_VERSION {
         return Err(ContractError::InvalidIbcVersion {
             version: channel.version.clone(),
         });
     }
     if let Some(version) = counterparty_version {
-        if version != ICS20_VERSION {
+        if version != IBC_VERSION {
             return Err(ContractError::InvalidIbcVersion {
                 version: version.to_string(),
             });
         }
     }
-    if channel.order != ICS20_ORDERING {
+    if channel.order != IBC_ORDERING {
         return Err(ContractError::OnlyOrderedChannel {});
     }
     Ok(())
@@ -236,8 +206,6 @@ pub fn ibc_packet_receive(
     msg: IbcPacketReceiveMsg,
 ) -> Result<IbcReceiveResponse, Never> {
     let packet = msg.packet;
-
-
     let res = match do_ibc_packet_receive(&packet) {
         Ok(msg) => {
             // build attributes first so we don't have to clone msg below
