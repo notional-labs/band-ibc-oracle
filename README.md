@@ -1,2 +1,2 @@
 # band-ibc-oracle
-Queries over ibc
+Queries oracle data over ibc
